@@ -131,7 +131,6 @@ class FpGhlSync extends Command
 
     private function updateGHLLead(){
         $contacts = Contact::getUnsynced();
-        $count = 1;
         foreach ($contacts as $contact){
             try {
                 $response = Http::withHeaders([
@@ -143,10 +142,6 @@ class FpGhlSync extends Command
                     $contact->sync();
                 }
                 $this->info('Sync complete, Contact Email: ' . $contact->email);
-                if ($count == 10){
-                    exit();
-                }
-                $count++;
             } catch (\Exception $e){
                 $this->error("Unable to update GHL contact for " . $contact->email . ' Error:- ' . $e->getMessage());
             }
