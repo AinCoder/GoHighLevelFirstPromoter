@@ -44,7 +44,8 @@ class FpGhlSync extends Command
         return 0;
     }
 
-    private function getFPLeads(int $page = 1){
+    private function getFPLeads(int $page = 1): array|string
+    {
         try {
             $http = Http::withHeaders([
                 'x-api-key' => $this->fpApiKey
@@ -84,6 +85,7 @@ class FpGhlSync extends Command
         } catch (\Exception $e){
             $this->error($e->getMessage());
         }
+        return '';
     }
 
     private function getGHLLeadId(string $email): string | null{
@@ -129,6 +131,7 @@ class FpGhlSync extends Command
 
     private function updateGHLLead(){
         $contacts = Contact::getUnsynced();
+        $count = 1;
         foreach ($contacts as $contact){
             try {
                 $response = Http::withHeaders([
@@ -139,8 +142,13 @@ class FpGhlSync extends Command
                 if ($response->ok()){
                     $contact->sync();
                 }
+                $this->info('Sync complete, Contact Email: ' . $contact->email);
+                if ($count == 10){
+                    exit();
+                }
+                $count++;
             } catch (\Exception $e){
-                $this->error("Unable to update GHL contact for " . $contact->email);
+                $this->error("Unable to update GHL contact for " . $contact->email . ' Error:- ' . $e->getMessage());
             }
         }
     }
